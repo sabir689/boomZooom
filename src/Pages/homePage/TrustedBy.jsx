@@ -6,6 +6,7 @@ import Moonstar from "../../assets/brands/moonstar.png";
 import Star from "../../assets/brands/star.png";
 import StartPeople from "../../assets/brands/start_people.png";
 import Randstad from "../../assets/brands/randstad.png";
+import Marquee from "react-fast-marquee";
 
 const TrustedBy = () => {
   const logos = [
@@ -18,31 +19,37 @@ const TrustedBy = () => {
   ];
 
   return (
-    <section className="bg-[#f8f9fa] py-12 sm:py-16">
+    <section className="bg-[#eef2f3] py-12 sm:py-16 ">
       <div className="max-w-6xl mx-auto px-4">
-        {/* Divider */}
-        <div className="border-y border-blue-200/50 py-10 text-2xl">
-          {/* Heading */}
-          <h2 className="text-center text-[#022c22] text-sm sm:text-base md:text-xl font-semibold mb-8 sm:mb-12 ">
+        <div className=" py-10 ">
+          
+      
+          <h2 className="text-center text-[#022c22] text-sm sm:text-base md:text-3xl  font-semibold mb-8 sm:mb-12">
             We’ve helped thousands of sales teams
           </h2>
 
-          {/* Logos */}
-          <div className="flex h-10 flex-wrap items-center justify-center gap-4 sm:gap-10 md:gap-12 lg:gap-16">
+          {/* Marquee */}
+          <Marquee
+            speed={120}
+            pauseOnHover
+            gradient
+            gradientColor={[248, 249, 250]}
+          >
             {logos.map((logo) => (
               <div
                 key={logo.name}
-                className="flex justify-center items-center w-24 sm:w-28 md:w-32 "
+                className="mx-6 sm:mx-10 md:mx-14 mt-10 flex items-center"
               >
                 <img
                   src={logo.img}
                   alt={`${logo.name} logo`}
                   loading="lazy"
-                  className="w-full h-6 object-contain  hover:grayscale-0 hover:opacity-100 transition duration-300"
+                  className="h-6 sm:h-7 md:h-6 object-contain hover:opacity-100 transition"
                 />
               </div>
             ))}
-          </div>
+          </Marquee>
+
         </div>
       </div>
     </section>
