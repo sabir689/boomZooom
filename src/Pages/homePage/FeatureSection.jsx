@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 import trackingImg from '../../assets/png/live-tracking.png';
 import safeImg from '../../assets/png/safe-delivery.png';
@@ -23,11 +25,21 @@ const features = [
 ];
 
 const FeatureSection = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      easing: 'ease-in-out',
+    });
+  }, []);
+
   return (
-    <section className="bg-[#eef2f3] py-16 px-6 flex flex-col items-center gap-8">
+    <section className="bg-[#eef2f3] py-16 px-6 flex flex-col items-center gap-8 overflow-hidden">
       {features.map((feature, index) => (
         <div 
           key={index} 
+          // index % 2 === 0 checks if the item is even (0, 2) or odd (1)
+          data-aos={index % 2 === 0 ? "fade-right" : "fade-left"}
           className="bg-white w-full max-w-5xl rounded-[2rem] p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm transition-transform hover:scale-[1.01]"
         >
           {/* Image Container */}
