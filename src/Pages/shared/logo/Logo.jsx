@@ -4,7 +4,7 @@ const Logo = () => {
     return (
         <div className='flex  items-end'>
             <img className='mb-2' src={logoZoom} alt="" />
-            <p className='text-3xl -ml-3 font-extrabold'>ZoomBoom</p>
+            <p className='text-3xl -ml-3 font-extrabold text-black'>ZoomBoom</p>
         </div>
     );
 };
