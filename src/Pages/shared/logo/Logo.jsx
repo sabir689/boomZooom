@@ -1,11 +1,18 @@
 import React from 'react';
 import logoZoom from '../../../assets/png/logo.png'
+import { Link } from 'react-router-dom'; 
 const Logo = () => {
     return (
-        <div className='flex  items-end'>
-            <img className='mb-2' src={logoZoom} alt="" />
-            <p className='text-3xl -ml-3 font-extrabold text-black'>ZoomBoom</p>
-        </div>
+        <Link to="/" className="inline-block">
+            <div className='flex items-center gap-1 p-4 rounded-2xl'> 
+               
+                <img className='h-10 w-auto' src={logoZoom} alt="ZoomBoom Logo" />
+                
+                <p className='text-3xl font-extrabold text-black tracking-tight'>
+                    ZoomBoom
+                </p>
+            </div>
+        </Link>
     );
 };
 
