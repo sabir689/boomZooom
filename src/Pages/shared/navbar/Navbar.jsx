@@ -1,13 +1,23 @@
 import React from 'react';
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import Logo from '../logo/logo';
+import useAuth from '../../../Hooks/useAuth';
 
 const Navbar = () => {
+    const {user}=useAuth()
     const navItems = <>
         <li><NavLink to="/">Home</NavLink></li>
         <li><NavLink to="/services">Services</NavLink></li>
         <li><NavLink to="/coverage">Coverage</NavLink></li>
-        <li><NavLink to="/about">About Us</NavLink></li>
+        <li><NavLink to="/sendParcel">Send A Parcel</NavLink></li>
+        {
+            user && <>
+
+             
+              <li><NavLink to="/dashboard">Dashboard</NavLink></li>
+            </>
+        }
+        
         <li><NavLink to="/pricing">Pricing</NavLink></li>
         <li><NavLink to="/Rider">Be a Rider</NavLink></li>
 
@@ -35,7 +45,9 @@ const Navbar = () => {
                 </ul>
             </div>
             <div className="navbar-end">
-                <a className="btn">Button</a>
+                <Link className='border-2 border-gray-200 p-2 px-4 rounded-2xl transition-transform duration-200 hover:scale-105 hover:border-lime-400 hover:bg-lime-200' to='/login'>
+                    Sign In
+                </Link>
             </div>
         </div>
     );

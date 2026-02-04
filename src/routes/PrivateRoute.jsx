@@ -1,21 +1,21 @@
-import React, { Children } from 'react';
+import React from 'react'; // Removed { Children } import as it's not needed
 import useAuth from '../Hooks/useAuth';
 import { Navigate } from 'react-router';
 
-const PrivateRoute = () => {
+
+const PrivateRoute = ({ children }) => {
     const { user, loading } = useAuth();
 
-
     if (loading) {
-        return <span className='<span className="loading loading-dots loading-xl"></span>'></span>
-
+        return <span className="loading loading-dots loading-xl"></span>;
     }
+
     if (!user) {
-        <Navigate to="/login"></Navigate>
-
+        return <Navigate to="/login" replace />;
     }
 
-    return Children
+   
+    return children;
 };
 
 export default PrivateRoute;
