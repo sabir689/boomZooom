@@ -1,17 +1,50 @@
 import { useForm } from 'react-hook-form';
 import useAuth from '../../Hooks/useAuth';
-import { Link } from 'react-router';
-import { FaGoogle } from 'react-icons/fa'; // Install react-icons if you haven't
+import { Link, useNavigate } from 'react-router'; 
 import SocialLogIn from './SocialLogIn';
+import Swal from 'sweetalert2';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { createUser } = useAuth(); // Assume you add Google to your hook
+    const { createUser, updateUserProfile } = useAuth(); 
+    const navigate = useNavigate();
 
     const onSubmit = (data) => {
         createUser(data.email, data.password)
-            .then(result => console.log(result.user))
-            .catch(error => console.error(error));
+            .then(result => {
+                // If you have a function to update the user's display name
+                updateUserProfile(data.name)
+                    .then(() => {
+                        // Success SweetAlert
+                        Swal.fire({
+                            title: "Success!",
+                            text: "Your account has been created with ZoomBoom.",
+                            icon: "success",
+                            timer: 2000,
+                            showConfirmButton: false,
+                            background: '#ffffff',
+                            iconColor: '#D4E971', // Matches your Lime Green
+                            customClass: {
+                                popup: 'rounded-2xl'
+                            }
+                        });
+
+                        // Redirect to home or dashboard
+                        navigate('/');
+                    })
+                    .catch(err => console.error("Profile update error:", err));
+            })
+            .catch(error => {
+                console.error(error);
+                // Error SweetAlert
+                Swal.fire({
+                    title: "Registration Failed",
+                    text: error.message,
+                    icon: "error",
+                    confirmButtonColor: '#D4E971',
+                    confirmButtonText: 'Try Again'
+                });
+            });
     };
 
     return (
@@ -30,7 +63,9 @@ const Register = () => {
                             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                         </svg>
                         <div className="absolute bottom-0 right-0 bg-white rounded-full p-1 border border-gray-200">
-                            <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+                            <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
                         </div>
                     </div>
                 </div>
@@ -39,35 +74,55 @@ const Register = () => {
                     {/* Name Field */}
                     <div className="form-control">
                         <label className="label font-semibold text-black">Name</label>
-                        <input type="text" {...register('name')} className="input input-bordered w-full" placeholder="Name" />
+                        <input 
+                            type="text" 
+                            {...register('name', { required: "Name is required" })} 
+                            className="input input-bordered w-full" 
+                            placeholder="Full Name" 
+                        />
+                        {errors.name && <span className='text-red-500 text-xs mt-1'>{errors.name.message}</span>}
                     </div>
 
                     {/* Email Field */}
                     <div className="form-control">
                         <label className="label font-semibold text-black">Email</label>
-                        <input type="email" {...register('email', { required: true })} className="input input-bordered w-full" placeholder="Email" />
-                        {errors.email && <span className='text-red-500 text-xs mt-1'>Email is required</span>}
+                        <input 
+                            type="email" 
+                            {...register('email', { required: "Email is required" })} 
+                            className="input input-bordered w-full" 
+                            placeholder="email@example.com" 
+                        />
+                        {errors.email && <span className='text-red-500 text-xs mt-1'>{errors.email.message}</span>}
                     </div>
 
                     {/* Password Field */}
                     <div className="form-control">
                         <label className="label font-semibold text-black">Password</label>
-                        <input type="password" {...register("password", { required: true, minLength: 6 })} className="input input-bordered w-full" placeholder="Password" />
-                        {errors.password?.type === 'required' && <span className='text-red-500 text-xs mt-1'>Password is required</span>}
-                        {errors.password?.type === 'minLength' && <span className='text-red-500 text-xs mt-1'>Must be at least 6 characters</span>}
+                        <input 
+                            type="password" 
+                            {...register("password", { 
+                                required: "Password is required", 
+                                minLength: { value: 6, message: "Must be at least 6 characters" } 
+                            })} 
+                            className="input input-bordered w-full" 
+                            placeholder="••••••" 
+                        />
+                        {errors.password && <span className='text-red-500 text-xs mt-1'>{errors.password.message}</span>}
                     </div>
 
-                    {/* Register Button - Matching the lime green in your image */}
-                    <button className="btn w-full bg-[#D4E971] hover:bg-[#c4db5f] border-none text-black font-bold mt-2">
+                    {/* Register Button */}
+                    <button type="submit" className="btn w-full bg-[#D4E971] hover:bg-[#c4db5f] border-none text-black font-bold mt-4">
                         Register
                     </button>
 
-                    <p className="text-sm text-center text-gray-500 ">
+                    <p className="text-sm text-center text-gray-500 pt-2">
                         Already have an account? <Link className="text-[#a8c43a] font-bold hover:underline" to="/logIn">Login</Link>
                     </p>
-                    {/* Google Button */}
-                    <SocialLogIn></SocialLogIn>
 
+                    <div className="divider text-xs text-gray-400">OR</div>
+
+                    {/* Google Button component */}
+                    <SocialLogIn />
                 </form>
             </div>
         </div>

@@ -1,11 +1,48 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom'; // Fix: Always use react-router-dom for web
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import useAuth from '../../Hooks/useAuth';
 import SocialLogIn from './SocialLogIn';
+import Swal from 'sweetalert2';
 
 const LogIn = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const onSubmit = (data) => console.log(data);
+    const { signIn } = useAuth(); // Getting login function from context
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Determine where to send the user (either home or the page they tried to visit)
+    const from = location.state?.from?.pathname || "/";
+
+    const onSubmit = (data) => {
+        signIn(data.email, data.password)
+            .then(result => {
+                console.log(result.user);
+                
+                // 1. Show Success Alert
+                Swal.fire({
+                    title: "Welcome Back!",
+                    text: "Login successful.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
+                    iconColor: '#D4E971',
+                });
+
+                // 2. Redirect to Homepage (or previous location)
+                navigate(from, { replace: true });
+            })
+            .catch(error => {
+                console.error(error);
+                // 3. Show Error Alert
+                Swal.fire({
+                    title: "Error",
+                    text: "Invalid email or password. Please try again.",
+                    icon: "error",
+                    confirmButtonColor: '#D4E971',
+                });
+            });
+    };
 
     return (
         <div className='max-w-md mx-auto lg:ml-10 w-full'>
@@ -65,7 +102,7 @@ const LogIn = () => {
                     Don’t have any account? <Link className="text-[#a8c43a] font-bold hover:underline" to="/register">Register</Link>
                 </p>
                 
-                
+                <div className="divider text-xs text-gray-400">OR</div>
 
                 {/* Google Login Button Component */}
                 <SocialLogIn />

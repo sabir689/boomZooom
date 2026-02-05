@@ -1,16 +1,26 @@
 
+import { useLocation, useNavigate } from 'react-router';
 import useAuth from '../../Hooks/useAuth';
 
 const SocialLogIn = () => {
-    const {signInWithGoogle} = useAuth();
-    const handleGoogleSignIn = () =>{
+    const { signInWithGoogle } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const from = location.state?.from || '/';
+
+
+
+
+
+    const handleGoogleSignIn = () => {
         signInWithGoogle()
-        .then (result =>{
-            console.log(result.user)
-        })
-        .catch(error =>{
-            console.error(error);
-        })
+            .then(result => {
+                console.log(result.user)
+                navigate(from)
+            })
+            .catch(error => {
+                console.error(error);
+            })
 
     }
     return (
@@ -19,11 +29,11 @@ const SocialLogIn = () => {
             <button
                 type="button"
                 onClick={handleGoogleSignIn}
-               className="btn w-full bg-[#E8EDF2] hover:bg-gray-200 border-none text-black normal-case font-medium"
+                className="btn w-full bg-[#E8EDF2] hover:bg-gray-200 border-none text-black normal-case font-medium"
             >
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 mr-2" alt="google" />
                 Login with google
-            </button> 
+            </button>
         </div>
     );
 };
