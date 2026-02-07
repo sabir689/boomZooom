@@ -145,7 +145,7 @@ const DashboardLayout = () => {
                         <div className="divider opacity-20 my-4">General</div>
 
                         <NavItem to="/dashboard/settings" icon={<Settings size={20} />} label="Settings" />
-                        <NavItem to="/dashboard/rider-statistics" icon={<Bike size={20} />} label="Rider Stats" />
+                        <NavItem to="/dashboard/riderStats" icon={<Bike size={20} />} label="Rider Stats" />
                         <NavItem to="/dashboard/pendingRiders" icon={<Activity size={20} />} label="Application Status" />
                         <NavItem to="/dashboard/password" icon={<Lock size={20} />} label="Password" />
                         <NavItem to="/dashboard/help" icon={<HelpCircle size={20} />} label="Help Center" />

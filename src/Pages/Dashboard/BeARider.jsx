@@ -30,7 +30,7 @@ const BeARider = () => {
   const { user } = useAuth();
   const [uniqueRegions, setUniqueRegions] = useState([]);
   const [availableDistricts, setAvailableDistricts] = useState([]);
-  const [coveredAreas, setCoveredAreas] = useState([]);
+  const [ setCoveredAreas] = useState([]);
   const [preview, setPreview] = useState(null); 
   const axiosSecure = useAxiosSecure();
 
