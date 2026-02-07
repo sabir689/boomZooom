@@ -1,18 +1,20 @@
 import React from 'react';
 import { Link, NavLink, Outlet } from 'react-router';
-import { 
-  LayoutDashboard, 
-  Package, 
-  History, 
-  Truck, 
-  Users, 
-  Settings, 
-  Lock, 
-  HelpCircle, 
-  LogOut, 
-  PlusCircle,
-  Bell,
-  AlertTriangle
+import {
+    LayoutDashboard,
+    Package,
+    History,
+    Truck,
+    Users,
+    Settings,
+    Lock,
+    HelpCircle,
+    LogOut,
+    PlusCircle,
+    Bell,
+    AlertTriangle,
+    Bike, 
+    Activity
 } from 'lucide-react';
 
 const DashboardLayout = () => {
@@ -39,13 +41,13 @@ const DashboardLayout = () => {
 
                     {/* TOP RIGHT ACTIONS */}
                     <div className="flex-none gap-2">
-                        <Link to='/sendParcel'> 
+                        <Link to='/sendParcel'>
                             <button className="btn btn-sm md:btn-md bg-[#B9FF66] hover:bg-[#a5e65b] border-none text-black gap-2">
                                 <PlusCircle size={18} />
                                 <span className="hidden sm:inline">Send Parcel</span>
                             </button>
                         </Link>
-                        
+
                         <button className="btn btn-ghost btn-circle">
                             <div className="indicator">
                                 <Bell size={20} />
@@ -123,7 +125,7 @@ const DashboardLayout = () => {
             <div className="drawer-side z-50">
                 <label htmlFor="main-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
                 <div className="flex flex-col w-72 min-h-full bg-slate-900 text-slate-300 p-4">
-                    
+
                     {/* Brand */}
                     <Link to='/' className="flex items-center justify-center gap-2 px-2 mb-8 mt-4">
                         <div className="bg-[#B9FF66] p-1.5 rounded-lg text-black">
@@ -134,18 +136,20 @@ const DashboardLayout = () => {
 
                     {/* Navigation Items */}
                     <ul className="menu menu-md gap-1 p-0">
-                        <NavItem to="/dashboard" icon={<LayoutDashboard size={20}/>} label="Dashboard" end />
-                        <NavItem to="myParcels" icon={<Package size={20}/>} label="My Parcel" />
-                        <NavItem to="/dashboard/payment-history" icon={<History size={20}/>} label="Payment History" />
-                        <NavItem to="/dashboard/drivers" icon={<Truck size={20}/>} label="Drivers" />
-                        <NavItem to="/dashboard/delivery-men" icon={<Users size={20}/>} label="Delivery Men" />
+                        <NavItem to="/dashboard" icon={<LayoutDashboard size={20} />} label="Dashboard" end />
+                        <NavItem to="myParcels" icon={<Package size={20} />} label="My Parcel" />
+                        <NavItem to="/dashboard/payment-history" icon={<History size={20} />} label="Payment History" />
+                        <NavItem to="/beARider" icon={<Truck size={20} />} label="BE  A Rider" />
+                        <NavItem to="/dashboard/delivery-men" icon={<Users size={20} />} label="Delivery Men" />
 
                         <div className="divider opacity-20 my-4">General</div>
 
-                        <NavItem to="/dashboard/settings" icon={<Settings size={20}/>} label="Settings" />
-                        <NavItem to="/dashboard/password" icon={<Lock size={20}/>} label="Password" />
-                        <NavItem to="/dashboard/help" icon={<HelpCircle size={20}/>} label="Help Center" />
-                        
+                        <NavItem to="/dashboard/settings" icon={<Settings size={20} />} label="Settings" />
+                        <NavItem to="/dashboard/rider-statistics" icon={<Bike size={20} />} label="Rider Stats" />
+                        <NavItem to="/dashboard/pendingRiders" icon={<Activity size={20} />} label="Application Status" />
+                        <NavItem to="/dashboard/password" icon={<Lock size={20} />} label="Password" />
+                        <NavItem to="/dashboard/help" icon={<HelpCircle size={20} />} label="Help Center" />
+
                         <li className="mt-4">
                             <button className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all text-slate-400">
                                 <LogOut size={20} />
@@ -167,10 +171,9 @@ const NavItem = ({ to, icon, label, end = false }) => (
             to={to}
             end={end}
             className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive
-                        ? "bg-[#B9FF66] text-black font-bold shadow-lg shadow-lime-400/10"
-                        : "hover:bg-slate-800 hover:text-white"
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
+                    ? "bg-[#B9FF66] text-black font-bold shadow-lg shadow-lime-400/10"
+                    : "hover:bg-slate-800 hover:text-white"
                 }`
             }
         >

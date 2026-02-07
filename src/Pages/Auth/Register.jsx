@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import useAuth from '../../Hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
 import { Link, useNavigate } from 'react-router';
 import SocialLogIn from './SocialLogIn';
 import Swal from 'sweetalert2';

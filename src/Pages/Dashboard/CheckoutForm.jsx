@@ -11,16 +11,16 @@ const CheckoutForm = ({ price, parcelId }) => {
     const elements = useElements();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const axiosSecure = useAxiosSecure(); // 2. Initialize
+    const axiosSecure = useAxiosSecure();
     
     const [clientSecret, setClientSecret] = useState("");
     const [processing, setProcessing] = useState(false);
     const [cardError, setCardError] = useState("");
 
-    // Fetch Payment Intent
+    
     useEffect(() => {
         if (price > 0) {
-            // Using axiosSecure handles baseURL and JWT headers automatically
+            
             axiosSecure.post("/create-payment-intent", { price })
                 .then(res => {
                     setClientSecret(res.data.clientSecret);
@@ -74,7 +74,7 @@ const CheckoutForm = ({ price, parcelId }) => {
                     if (res.data?.paymentResult?.insertedId || res.data?.success) {
                         Swal.fire({
                             title: "Payment Success!",
-                            html: `Transaction ID: <br/><small className="font-mono text-lime-600">${paymentIntent.id}</small>`,
+                            html: `Transaction ID: <br/><small class="font-mono text-lime-600">${paymentIntent.id}</small>`,
                             icon: "success",
                             confirmButtonColor: '#a3e635',
                         });

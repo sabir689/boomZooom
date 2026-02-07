@@ -166,7 +166,7 @@ const Coverage = () => {
             </section>
 
             {/* In-page style for the custom scrollbar */}
-            <style jsx>{`
+            <style>{`
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 5px;
                 }

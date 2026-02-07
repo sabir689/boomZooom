@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react'; // Added useState
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../Hooks/useAuth';
 import SocialLogIn from './SocialLogIn';
 import Swal from 'sweetalert2';
+import { FiEye, FiEyeOff } from 'react-icons/fi'; // Added icons
 
 const LogIn = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { signIn } = useAuth(); // Getting login function from context
+    const { signIn } = useAuth(); 
     const navigate = useNavigate();
     const location = useLocation();
+    
+    // State for toggling password visibility
+    const [showPassword, setShowPassword] = useState(false);
 
-    // Determine where to send the user (either home or the page they tried to visit)
     const from = location.state?.from?.pathname || "/";
 
     const onSubmit = (data) => {
@@ -19,7 +22,6 @@ const LogIn = () => {
             .then(result => {
                 console.log(result.user);
                 
-                // 1. Show Success Alert
                 Swal.fire({
                     title: "Welcome Back!",
                     text: "Login successful.",
@@ -29,12 +31,10 @@ const LogIn = () => {
                     iconColor: '#D4E971',
                 });
 
-                // 2. Redirect to Homepage (or previous location)
                 navigate(from, { replace: true });
             })
             .catch(error => {
                 console.error(error);
-                // 3. Show Error Alert
                 Swal.fire({
                     title: "Error",
                     text: "Invalid email or password. Please try again.",
@@ -68,15 +68,24 @@ const LogIn = () => {
                 {/* Password Field */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-1">Password</label>
-                    <input 
-                        type="password" 
-                        {...register("password", { 
-                            required: "Password is required", 
-                            minLength: { value: 6, message: "Must be at least 6 characters" } 
-                        })} 
-                        className="w-full px-4 py-2 text-black rounded-md border border-gray-200 focus:ring-1 focus:ring-[#D4E971] focus:border-[#D4E971] outline-none transition-all placeholder:text-gray-300 text-sm" 
-                        placeholder="Password" 
-                    />
+                    <div className="relative"> {/* Added relative for icon positioning */}
+                        <input 
+                            type={showPassword ? "text" : "password"} // Dynamic type
+                            {...register("password", { 
+                                required: "Password is required", 
+                                minLength: { value: 6, message: "Must be at least 6 characters" } 
+                            })} 
+                            className="w-full px-4 py-2 text-black rounded-md border border-gray-200 focus:ring-1 focus:ring-[#D4E971] focus:border-[#D4E971] outline-none transition-all placeholder:text-gray-300 text-sm pr-10" 
+                            placeholder="Password" 
+                        />
+                        {/* Toggle Icon Button */}
+                        <span 
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-black transition-colors"
+                        >
+                            {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                        </span>
+                    </div>
                     {errors.password && <p className='text-red-500 text-[10px] mt-1'>{errors.password.message}</p>}
                 </div>
 

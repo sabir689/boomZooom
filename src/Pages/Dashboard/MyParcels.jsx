@@ -1,28 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
-import useAuth from '../../Hooks/useAuth';
-import useAxiosSecure from '../../Hooks/useAxiosSecure'; // Using the secure hook
+import useAuth from '../../hooks/useAuth';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { 
-    FaBox, FaUser, FaWallet, FaEdit, FaTrash, 
-    FaCreditCard, FaParachuteBox, FaRoute, FaCopy 
+import {
+    FaBox, FaCreditCard, FaParachuteBox, FaRoute, 
+    FaCopy, FaEdit, FaTrash, FaInfoCircle
 } from 'react-icons/fa';
+
+
+
 
 const MyParcels = () => {
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const axiosSecure = useAxiosSecure();
 
-    /**
-     * Fetching Parcels with TanStack Query
-     * - Uses axiosSecure to automatically pass JWT
-     * - enabled: Ensures we don't fetch until the user email is available
-     */
-    const { 
-        data: parcels = [], 
-        isLoading: parcelsLoading, 
+    const {
+        data: parcels = [],
+        isLoading: parcelsLoading,
         refetch,
-        isFetching 
+        isFetching
     } = useQuery({
         queryKey: ['parcels', user?.email],
         queryFn: async () => {
@@ -32,37 +30,48 @@ const MyParcels = () => {
         enabled: !authLoading && !!user?.email,
     });
 
+    // Handle Payment Navigation
     const handlePay = (parcel) => {
         if (parcel.status !== 'Pending') {
-            Swal.fire({ 
-                title: "Action Blocked", 
-                text: "Only pending parcels require payment.", 
+            Swal.fire({
+                title: "Already Processed",
+                text: `This parcel is currently ${parcel.status}.`,
                 icon: "info",
-                confirmButtonColor: "#A3E635" 
+                confirmButtonColor: "#A3E635"
             });
             return;
         }
-        navigate(`/dashboard/payment/${parcel._id}`, { 
-            state: { price: parcel.totalCost, parcelId: parcel._id } 
+        navigate(`/dashboard/payment/${parcel._id}`, {
+            state: { price: parcel.totalCost, parcelId: parcel._id }
         });
     };
 
-    const copyToClipboard = (id) => {
-        navigator.clipboard.writeText(id);
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-        });
-        Toast.fire({ icon: 'success', title: 'ID Copied to clipboard' });
+    // Copy ID to Clipboard
+    const copyToClipboard = async (id) => {
+        try {
+            await navigator.clipboard.writeText(id);
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+            });
+            Toast.fire({ icon: 'success', title: 'ID Copied' });
+        } catch (error) {
+            console.error("Failed to copy!", error);
+        }
     };
 
-    const handleDelete = (id) => {
+    // Handle Cancel/Delete
+    const handleDelete = (parcel) => {
+        const isPaid = parcel.status === 'Paid';
+        
         Swal.fire({
             title: "Are you sure?",
-            text: "You can only cancel parcels that are still 'Pending'.",
+            text: isPaid 
+                ? "This parcel is PAID. Cancelling will trigger a refund request to the admin." 
+                : "You are about to cancel this booking.",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#ef4444",
@@ -72,29 +81,34 @@ const MyParcels = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const res = await axiosSecure.delete(`/parcels/${id}`);
+                    const res = await axiosSecure.delete(`/parcels/${parcel._id}`);
                     if (res.data.deletedCount > 0) {
-                        refetch(); // Instantly update the UI
-                        Swal.fire({ 
-                            title: "Cancelled!", 
-                            text: "Your parcel booking has been removed.", 
-                            icon: "success", 
-                            confirmButtonColor: "#A3E635" 
+                        refetch();
+                        Swal.fire({
+                            title: "Cancelled!",
+                            text: isPaid 
+                                ? "Booking removed. Your refund is being processed." 
+                                : "Your booking has been removed.",
+                            icon: "success",
+                            confirmButtonColor: "#A3E635"
                         });
                     }
                 } catch (error) {
-                    Swal.fire("Error", "Could not delete. It might already be processed.", "error");
+                    Swal.fire(
+                        "Error",
+                        error.response?.data?.message || "Action failed. The parcel might be in transit.",
+                        "error"
+                    );
                 }
             }
         });
     };
 
-    // Combine Loading States
     if (authLoading || parcelsLoading) {
         return (
-            <div className="flex flex-col justify-center items-center min-h-screen gap-4">
-                <span className="loading loading-bars loading-lg text-lime-400"></span>
-                <p className="text-slate-500 font-bold animate-pulse">Loading your shipments...</p>
+            <div className="flex flex-col justify-center items-center min-h-screen gap-4 bg-slate-50">
+                <span className="loading loading-bars loading-lg text-lime-500"></span>
+                <p className="text-slate-500 font-bold animate-pulse">Syncing with logistics...</p>
             </div>
         );
     }
@@ -103,7 +117,7 @@ const MyParcels = () => {
         <div className="p-4 lg:p-10 bg-slate-50 min-h-screen">
             <div className="max-w-7xl mx-auto">
                 
-                {/* Header Section */}
+                {/* Dashboard Header */}
                 <div className="bg-slate-900 rounded-[2rem] p-6 lg:p-10 mb-10 flex flex-col md:flex-row justify-between items-center shadow-2xl relative overflow-hidden">
                     <div className="z-10 text-center md:text-left">
                         <h2 className="text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-3">
@@ -115,21 +129,18 @@ const MyParcels = () => {
                     <div className="z-10 mt-6 md:mt-0 flex gap-4">
                         <div className="bg-slate-800/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-slate-700/50 text-center">
                             <div className="text-2xl font-black text-lime-400">{parcels.length}</div>
-                            <div className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Total Shipments</div>
+                            <div className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Shipments</div>
                         </div>
                     </div>
-                    {/* Abstract Decoration */}
-                    <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-lime-400/5 rounded-full blur-3xl"></div>
                 </div>
 
-                {/* Table Logic */}
                 {parcels.length === 0 ? (
                     <div className="bg-white p-16 lg:p-24 rounded-[3rem] text-center shadow-sm border border-slate-100">
                         <FaParachuteBox className="text-slate-100 text-8xl mx-auto mb-6" />
                         <h3 className="text-2xl font-bold text-slate-800">No Parcels Found</h3>
-                        <p className="text-slate-400 mt-2 mb-8 max-w-xs mx-auto">You haven't booked any parcels yet. Start your shipping journey today.</p>
+                        <p className="text-slate-400 mt-2 mb-8 max-w-xs mx-auto">Your shipping history is empty. Ready to send something?</p>
                         <Link to="/dashboard/book-parcel" className="btn bg-lime-400 hover:bg-lime-500 border-none px-10 rounded-2xl font-black text-slate-900 shadow-lg shadow-lime-400/20 transition-all hover:-translate-y-1">
-                            Book First Parcel
+                            Book Now
                         </Link>
                     </div>
                 ) : (
@@ -138,33 +149,37 @@ const MyParcels = () => {
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="bg-slate-50/80 border-b border-slate-100">
-                                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-slate-400 font-black text-left">Parcel Info</th>
-                                        <th className="px-6 py-6 text-[10px] uppercase tracking-widest text-slate-400 font-black text-left">Receiver</th>
-                                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-slate-400 font-black text-left">Cost</th>
-                                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-slate-400 font-black text-center">Status</th>
-                                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-slate-400 font-black text-right">Actions</th>
+                                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-slate-800 font-black text-left">Parcel Info</th>
+                                        <th className="px-6 py-6 text-[10px] uppercase tracking-widest text-slate-800 font-black text-left">Receiver</th>
+                                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-slate-800 font-black text-left">Cost</th>
+                                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-slate-800 font-black text-center">Status</th>
+                                        <th className="px-8 py-6 text-center text-[10px] uppercase tracking-widest text-slate-800 font-black ">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
                                     {parcels.map((parcel) => (
-                                        <tr key={parcel._id} className="hover:bg-slate-50/80 transition-all group">
+                                        <tr key={parcel._id} className="hover:bg-slate-50/50 transition-all group">
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-lime-400 group-hover:text-slate-900 transition-all duration-300">
                                                         <FaBox size={18} />
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-slate-800 text-sm">{parcel.parcelName}</div>
-                                                        <div onClick={() => copyToClipboard(parcel._id)} className="text-[10px] font-bold text-slate-400 uppercase mt-1 flex items-center gap-1 cursor-pointer hover:text-lime-600 transition-colors">
-                                                            {parcel._id.slice(-8)} <FaCopy className="text-[8px]" />
-                                                        </div>
+                                                         <div className="font-bold text-slate-800 text-sm">{parcel.parcelName}</div>
+                                                        <div className="font-bold text-lime-800 text-sm">{parcel.parcelType}</div>
+                                                        
+                                                        
                                                     </div>
                                                 </div>
                                             </td>
 
                                             <td className="px-6 py-6">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-slate-700">{parcel.receiverName}</span>
+                                                    <span className="text-sm font-bold text-slate-700">{parcel.receiverName}
+                                                     <div onClick={() => copyToClipboard(parcel._id)} className="text-[10px] font-bold text-slate-400 uppercase mt-1 flex items-center gap-1 cursor-pointer hover:text-lime-600">
+                                                            ID: {parcel._id.slice(-8)} <FaCopy className="text-[8px]" />
+                                                        </div>   
+                                                    </span>
                                                     <span className="text-[10px] text-slate-400 font-medium">{parcel.receiverPhone}</span>
                                                 </div>
                                             </td>
@@ -179,9 +194,10 @@ const MyParcels = () => {
                                             </td>
 
                                             <td className="px-8 py-6 text-center">
-                                                <span className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                                                    parcel.status === 'Pending' ? 'bg-orange-50 text-orange-600 border-orange-100' : 
+                                                <span className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                                                    parcel.status === 'Pending' ? 'bg-orange-50 text-orange-600 border-orange-100' :
                                                     parcel.status === 'Cancelled' ? 'bg-red-50 text-red-600 border-red-100' :
+                                                    parcel.status === 'Paid' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                                     'bg-lime-50 text-lime-600 border-lime-100'
                                                 }`}>
                                                     {parcel.status}
@@ -197,29 +213,29 @@ const MyParcels = () => {
                                                         </button>
                                                     </Link>
 
-                                                    {/* Update Action */}
+                                                    {/* Update Action: Only allowed if Pending */}
                                                     <Link to={`/dashboard/update-parcel/${parcel._id}`}>
-                                                        <button 
+                                                        <button
                                                             disabled={parcel.status !== 'Pending'}
                                                             className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:border-slate-900 hover:text-slate-900 disabled:opacity-20 disabled:cursor-not-allowed transition-all shadow-sm"
-                                                            title="Edit Booking"
+                                                            title="Edit Details"
                                                         >
                                                             <FaEdit />
                                                         </button>
                                                     </Link>
 
-                                                    {/* Delete Action */}
-                                                    <button 
-                                                        onClick={() => handleDelete(parcel._id)}
-                                                        disabled={parcel.status !== 'Pending'}
+                                                    {/* Delete Action: Allowed if Pending OR Paid */}
+                                                    <button
+                                                        onClick={() => handleDelete(parcel)}
+                                                        disabled={parcel.status !== 'Pending' && parcel.status !== 'Paid'}
                                                         className="p-3 bg-white border border-slate-200 text-red-300 rounded-xl hover:bg-red-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all shadow-sm"
-                                                        title="Cancel Booking"
+                                                        title="Cancel Shipment"
                                                     >
                                                         <FaTrash />
                                                     </button>
 
-                                                    {/* Pay Button */}
-                                                    <button 
+                                                    {/* Pay Button: Only if Pending */}
+                                                    <button
                                                         onClick={() => handlePay(parcel)}
                                                         disabled={parcel.status !== 'Pending'}
                                                         className="ml-2 flex items-center gap-2 px-6 py-3 bg-slate-900 text-lime-400 font-black text-[10px] uppercase rounded-xl hover:bg-black disabled:bg-slate-50 disabled:text-slate-200 transition-all shadow-xl active:scale-95"
